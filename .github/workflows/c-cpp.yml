@@ -30,7 +30,7 @@ jobs:
       run: make -j -C app_template
       
     - name: build the demos
-      run: for dir in demos/*; do make -j -C $dir; done
+      run: for dir in $(dirname demos/*/Makefile); do make -j -C $dir; done
 
     - uses: actions/upload-artifact@v4.3.6
       with:
