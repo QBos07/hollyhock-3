@@ -5,7 +5,7 @@ AS_FLAGS:=
 
 CC:=sh4aeb-elf-g++
 
-CC_FLAGS:=-fPIC -ffreestanding -ffunction-sections -fdata-sections -fno-exceptions -fno-rtti -m4a-nofpu -Wall -Wextra -Os -I include/
+CC_FLAGS:=-ffreestanding -ffunction-sections -fdata-sections -fno-exceptions -fno-rtti -m4a-nofpu -Wall -Wextra -Os -I include/
 
 AR:=sh4aeb-elf-ar
 AR_FLAGS:=src
