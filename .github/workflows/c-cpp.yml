@@ -1,0 +1,42 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-artifact:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/qbos07/cp-dockercross
+      credentials:
+       username: ${{ github.actor }}
+       password: ${{ secrets.github_token }}
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: build the sdk
+      run: |
+        make -j -C sdk
+        echo  "SDK_DIR=$PWD/sdk" >> $GITHUB_ENV
+        
+    - name: build the launcher
+      run: make -j -C launcher
+      
+    - name: build the example
+      run: make -j -C app_template
+      
+    - name: build the demos
+      run: for dir in $(dirname demos/*/Makefile); do make -j -C $dir; done
+
+    - uses: actions/upload-artifact@v4.3.6
+      with:
+        path: | 
+          **/*.elf
+          **/*.bin
+          **/*.hhk
+          **/*.a
+          sdk/sdk.o
