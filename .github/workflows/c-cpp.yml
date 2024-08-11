@@ -88,14 +88,18 @@ jobs:
         # This step uses the identity token to provision an ephemeral certificate
         # against the sigstore community Fulcio instance.
         run: echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
+
+      - name: Downcase the repository
+        id: downcase-repo
+        run: echo "lrepo=${GITHUB_REPOSITORY@L}" >> $GITHUB_OUTPUT
     outputs:
-      digest: ${{ steps.build-and-push.outputs.digest }}
+      name: ghcr.io/${{ steps.downcase-repo.outputs.lrepo }}@${{ steps.build-and-push.outputs.digest }}
         
   build-artifact:
     needs: build-sdk
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/${{ github.repository }}@${{ needs.build-sdk.outputs.digest }}
+      image: ${{ needs.build-sdk.outputs.name }}
       credentials:
        username: ${{ github.actor }}
        password: ${{ secrets.github_token }}
