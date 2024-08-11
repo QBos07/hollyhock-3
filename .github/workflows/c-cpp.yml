@@ -122,3 +122,4 @@ jobs:
           **/*.elf
           **/*.bin
           **/*.hhk
+          !patches/**
