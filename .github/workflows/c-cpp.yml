@@ -95,14 +95,13 @@ jobs:
         # against the sigstore community Fulcio instance.
         run: echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
     outputs:
-      imageid: ${{ steps.build-and-push.outputs.imageid }}
       digest: ${{ steps.build-and-push.outputs.digest }}
         
   build-artifact:
     needs: build-sdk
     runs-on: ubuntu-latest
     container:
-      image: ${{ needs.build-sdk.outputs.imageid }}@${{ needs.build-sdk.outputs.digest }}
+      image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ needs.build-sdk.outputs.digest }}
       credentials:
        username: ${{ github.actor }}
        password: ${{ secrets.github_token }}
