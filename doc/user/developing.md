@@ -18,7 +18,7 @@ Copy the contents of the `app_template/` directory to an empty folder. This will
 
 Open `main.cpp` in your favourite text editor, and edit the strings in the `APP_NAME`, `APP_DESCRIPTION`, `APP_AUTHOR` and `APP_VERSION` macro calls to match your application. These are the strings that will be displayed in the launcher when your application is selected. If you don't wish to provide one or more of these fields, simply delete the line (they're all optional).
 
-Similarly, open the `Makefile` and edit the first line (`APP_NAME:=app_template` by default), changing `app_template` to the filename you'd like your generated `.hhk` file to have.
+Similarly, open the `Makefile` and edit the first line (`APP_NAME:=app_template` by default), changing `app_template` to the filename you'd like your generated `.bin` file to have.
 
 Edit `main.cpp` to your hearts content, and add other `.cpp`, `.c`, and `.s` files as you please. The `Makefile` will automatically detect new source files at compile time.
 
@@ -36,7 +36,7 @@ SDK_DIR=~/hollyhock-2/sdk/ make
 ## 4. Build your app!
 Run `make` (remembering to set `SDK_DIR` inline if you didn't `export` it).
 
-A `.hhk` file with the name you specified in the `Makefile` will be generated, which you can then copy onto the root directory of the calculator's flash.
+A `.bin` file with the name you specified in the `Makefile` will be generated, which you can then copy onto the root directory of the calculator's flash.
 
 Open the launcher and select your application to launch it. Have fun!
 

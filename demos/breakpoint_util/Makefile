@@ -24,25 +24,21 @@ CC_SOURCES:=$(wildcard *.c)
 CXX_SOURCES:=$(wildcard *.cpp)
 OBJECTS:=$(AS_SOURCES:.s=.o) $(CC_SOURCES:.c=.o) $(CXX_SOURCES:.cpp=.o)
 
-APP_ELF:=$(APP_NAME).hhk
+APP_BIN:=$(APP_NAME).bin
 
-all: $(APP_ELF) Makefile
+all: $(APP_BIN) Makefile
 
 clean:
-	rm -f $(OBJECTS) $(APP_ELF)
+	rm -f $(OBJECTS) $(APP_BIN)
 
-$(APP_ELF): $(OBJECTS) $(SDK_DIR)/libsdk.a linker.ld
-	$(LD) -T linker.ld -o $@ $(LD_FLAGS) $(OBJECTS) -lsdk
-	$(OBJCOPY) --set-section-flags .hollyhock_name=contents,strings,readonly $(APP_ELF) $(APP_ELF)
-	$(OBJCOPY) --set-section-flags .hollyhock_description=contents,strings,readonly $(APP_ELF) $(APP_ELF)
-	$(OBJCOPY) --set-section-flags .hollyhock_author=contents,strings,readonly $(APP_ELF) $(APP_ELF)
-	$(OBJCOPY) --set-section-flags .hollyhock_version=contents,strings,readonly $(APP_ELF) $(APP_ELF)
+$(APP_BIN): $(OBJECTS) $(SDK_DIR)/libsdk.a linker_bin.ld
+	$(LD) -T linker_bin.ld -o $@ $(LD_FLAGS) $(OBJECTS) -lsdk
 
 # We're not actually building libsdk.a, just telling the user they need to do it
 # themselves. Just using the target to trigger an error when the file is
 # required but does not exist.
 $(SDK_DIR)/libsdk.a:
-	$(error You need to build the SDK before using it. Run make in the SDK directory, and check the README.md in the SDK directory for more information)
+	echo "You need to build the SDK before using it. Run make in the SDK directory, and check the README.md in the SDK directory for more information" && exit 1
 
 %.o: %.s
 	$(AS) -c $< -o $@ $(AS_FLAGS)

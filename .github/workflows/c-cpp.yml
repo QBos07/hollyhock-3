@@ -121,5 +121,4 @@ jobs:
         path: | 
           **/*.elf
           **/*.bin
-          **/*.hhk
           !patches/**
