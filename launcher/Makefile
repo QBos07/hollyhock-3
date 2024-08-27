@@ -1,18 +1,16 @@
-ifndef SDK_DIR
-$(error You need to define the SDK_DIR environment variable, and point it to the sdk/ folder)
-endif
+SDK_DIR?=../sdk
 
 AS:=sh4aeb-elf-gcc
 AS_FLAGS:=
 
-CC:=sh4-elf0-gcc
+CC:=sh4aeb-elf-gcc
 CC_FLAGS:=-ffreestanding -flto -ffunction-sections -fdata-sections -fshort-wchar -Wall -Wextra -Os -I $(SDK_DIR)/include/
 
 CXX:=sh4aeb-elf-g++
 CXX_FLAGS:=-ffreestanding -flto -ffunction-sections -fdata-sections -fno-exceptions -fno-rtti -fshort-wchar -Wall -Wextra -Os -I $(SDK_DIR)/include/
 
-LD:=sh4aeb-elf-g++
-LD_FLAGS:=-nolibc -nostartfiles -Wno-undef -Wl,--gc-sections -L$(SDK_DIR)
+LD:=sh4aeb-elf-gcc
+LD_FLAGS:=-nolibc -nostartfiles -Wno-undef -Wl,--gc-sections -Wall -Wextra -Os -L$(SDK_DIR)
 
 READELF:=sh4aeb-elf-readelf
 OBJCOPY:=sh4aeb-elf-objcopy
@@ -28,13 +26,13 @@ clean:
 	rm -f $(OBJECTS) run.bin
 
 run.bin: $(OBJECTS) $(SDK_DIR)/libsdk.a linker.ld
-	$(LD) -T linker.ld -o $@ $(LD_FLAGS) $(OBJECTS) -lsdk
+	$(LD) -T linker.ld -Wl,-Map $@.map -o $@ $(LD_FLAGS) $(OBJECTS) -lsdk
 
 # We're not actually building libsdk.a, just telling the user they need to do it
 # themselves. Just using the target to trigger an error when the file is
 # required but does not exist.
 $(SDK_DIR)/libsdk.a:
-	$(error You need to build the SDK before using it. Run make in the SDK directory, and check the README.md in the SDK directory for more information)
+	echo "You need to build the SDK before using it. Run make in the SDK directory, and check the README.md in the SDK directory for more information" && exit 1
 
 %.o: %.s
 	$(AS) -c $< -o $@ $(AS_FLAGS)
