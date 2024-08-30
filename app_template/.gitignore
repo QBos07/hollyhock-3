@@ -1,6 +1,8 @@
 # Compiled files
 *.o
 *.bin
+*.elf
+*.map
 
 # some temporary files under wsl
 *~

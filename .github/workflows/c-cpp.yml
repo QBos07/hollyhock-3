@@ -120,5 +120,6 @@ jobs:
       with:
         path: | 
           **/*.elf
+          **/*.map
           **/*.bin
           !patches/**
