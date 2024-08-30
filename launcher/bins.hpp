@@ -1,6 +1,7 @@
 #pragma once
 
-namespace Bins {
+class Bins {
+public:
     struct AppInfo {
         char fileName[100];
         char path[200];
@@ -12,11 +13,16 @@ namespace Bins {
 
     typedef void (*EntryPoint)();
 
-    const int MAX_APPS = 64;
+    static constexpr char FILE_MASK[] = "*.bin";
 
-    extern struct AppInfo g_apps[MAX_APPS];
-    extern int g_numApps;
+    static constexpr int MAX_APPS = 64;
+
+    struct AppInfo g_apps[MAX_APPS];
+    int g_numApps;
 
     void LoadAppInfo();
     EntryPoint RunApp(int i);
+
+private:
+    void LoadApp(const char *folder, wchar_t *fileName);
 };

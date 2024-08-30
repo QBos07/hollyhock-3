@@ -1,6 +1,7 @@
 #pragma once
 
-namespace Execs {
+class Execs {
+public:
     struct ExecInfo {
         char fileName[9];
         //char path[200];
@@ -8,16 +9,15 @@ namespace Execs {
         char description[100];
         char author[100];
         char version[100];
-        //char* fp; //this throws linker error: undefined reference to `___movmem_i4_even'
-        unsigned char fp[4]; //this is the address of the first byte. A pointer throws an assembler error... This has to work.
+        char *fp; //this is the address of the first byte.
     };
 
     typedef void (*EntryPoint)();
 
-    const int MAX_EXECS = 64;
+    static constexpr int MAX_EXECS = 64;
 
-    extern struct ExecInfo g_execs[MAX_EXECS];
-    extern int g_numExecs;
+    struct ExecInfo g_execs[MAX_EXECS];
+    int g_numExecs;
 
     void LoadExecInfo();
     EntryPoint RunExec(int i);

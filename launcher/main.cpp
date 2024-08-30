@@ -1,3 +1,4 @@
+#include <cstdint>
 #include <sdk/os/debug.hpp>
 #include <sdk/os/gui.hpp>
 #include <sdk/os/lcd.hpp>
@@ -10,11 +11,20 @@
 class Launcher : public GUIDialog {
 public:
     int m_selectedProg;
+    Apps *apps;
+    Bins *bins;
+    Execs *execs;
 
     Launcher() : GUIDialog(
         GUIDialog::Height95, GUIDialog::AlignTop,
         "Hollyhock Launcher",
         GUIDialog::KeyboardStateNone
+    ), apps(
+        new Apps()
+    ), bins(
+        new Bins()
+    ), execs(
+        new Execs()
     ), m_appNames(
         GetLeftX() + 10, GetTopY() + 10, GetRightX() - 10, GetBottomY() - 10,
         APP_NAMES_EVENT_ID
@@ -23,7 +33,7 @@ public:
         // Since the app info string is immediately updated based on the
         // selected app, if no apps are found, this is the string that stays
         // displayed.
-        // Use it to communicate to the user that we couldn't find any apps.
+        // Use it to communicate to the user that we couldn't find any apps->
         "No apps were found on your calculator.\n\nEnsure their .hhk files have been copied to the root directory of your calculator's flash."
     ), m_run(
         GetLeftX() + 10, GetTopY() + 45, GetLeftX() + 10 + 100, GetTopY() + 45 + 35,
@@ -34,13 +44,13 @@ public:
     ) {
         m_selectedProg = 0;
 
-        Apps::LoadAppInfo();
-        Bins::LoadAppInfo();
-        Execs::LoadExecInfo();
+        apps->LoadAppInfo();
+        bins->LoadAppInfo();
+        execs->LoadExecInfo();
 
         //Add apps to dropdown
-        for (int i = 0; i < Apps::g_numApps; ++i) {
-            struct Apps::AppInfo *app = &Apps::g_apps[i];
+        for (int i = 0; i < apps->g_numApps; ++i) {
+            struct Apps::AppInfo *app = &apps->g_apps[i];
 
             const char *name = app->path;
 
@@ -59,8 +69,8 @@ public:
         }
 
         //Add bins to dropdown
-        for (int i = 0; i < Bins::g_numApps; ++i) {
-            struct Bins::AppInfo *app = &Bins::g_apps[i];
+        for (int i = 0; i < bins->g_numApps; ++i) {
+            struct Bins::AppInfo *app = &bins->g_apps[i];
 
             const char *name = app->path;
 
@@ -71,7 +81,7 @@ public:
 
             m_appNames.AddMenuItem(*(
                 new GUIDropDownMenuItem(
-                    name, i + 1 + Apps::g_numApps, //Add bins after apps
+                    name, i + 1 + apps->g_numApps, //Add bins after apps
                     GUIDropDownMenuItem::FlagEnabled |
                     GUIDropDownMenuItem::FlagTextAlignLeft
                 )
@@ -79,8 +89,8 @@ public:
         }
 
         //Add execs to dropdown
-        for (int i = 0; i < Execs::g_numExecs; ++i) {
-            struct Execs::ExecInfo *exec = &Execs::g_execs[i];
+        for (int i = 0; i < execs->g_numExecs; ++i) {
+            struct Execs::ExecInfo *exec = &execs->g_execs[i];
 
             const char *name = exec->fileName;
 
@@ -91,7 +101,7 @@ public:
 
             m_appNames.AddMenuItem(*(
                 new GUIDropDownMenuItem(
-                    name, i + 1 + Apps::g_numApps + Bins::g_numApps, //Add execs after apps and bins
+                    name, i + 1 + apps->g_numApps + bins->g_numApps, //Add execs after apps and bins
                     GUIDropDownMenuItem::FlagEnabled |
                     GUIDropDownMenuItem::FlagTextAlignLeft
                 )
@@ -106,13 +116,19 @@ public:
         AddElement(m_progInfo);
 
         // Only show the Run button if there's apps or execs to display
-        if (Apps::g_numApps+Bins::g_numApps+Execs::g_numExecs > 0) {
+        if (apps->g_numApps+bins->g_numApps+execs->g_numExecs > 0) {
             AddElement(m_run);
         }
 
         AddElement(m_close);
 
         UpdateAppInfo();
+    }
+
+    virtual ~Launcher() {
+        delete apps;
+        delete bins;
+        delete execs;
     }
 
     virtual int OnEvent(GUIDialog_Wrapped *dialog, GUIDialog_OnEvent_Data *event) {
@@ -129,12 +145,12 @@ public:
 
     void UpdateAppInfo() {
         // If an invalid index is selected, don't do anything
-        if (m_selectedProg >= (Apps::g_numApps + Bins::g_numApps + Execs::g_numExecs)) return;
+        if (m_selectedProg >= (apps->g_numApps + bins->g_numApps + execs->g_numExecs)) return;
         // Check if an exec is selecter or an app is selected
-        if (m_selectedProg >= (Apps::g_numApps + Bins::g_numApps)){
+        if (m_selectedProg >= (apps->g_numApps + bins->g_numApps)){
 
             //An exec is selected
-            struct Execs::ExecInfo *exec = &Execs::g_execs[m_selectedProg-Apps::g_numApps-Bins::g_numApps];
+            struct Execs::ExecInfo *exec = &execs->g_execs[m_selectedProg-apps->g_numApps-bins->g_numApps];
             bool hasName = exec->name[0] != '\0';
             bool hasDescription = exec->description[0] != '\0';
             bool hasAuthor = exec->author[0] != '\0';
@@ -182,10 +198,10 @@ public:
             }
         }
         else
-        if (m_selectedProg >= (Apps::g_numApps)){
+        if (m_selectedProg >= (apps->g_numApps)){
 
             //A bin is selected
-            struct Bins::AppInfo *app = &Bins::g_apps[m_selectedProg-Apps::g_numApps];
+            struct Bins::AppInfo *app = &bins->g_apps[m_selectedProg-apps->g_numApps];
             bool hasName = app->name[0] != '\0';
             bool hasDescription = app->description[0] != '\0';
             bool hasAuthor = app->author[0] != '\0';
@@ -235,7 +251,7 @@ public:
         {
 
             //An app is selected
-            struct Apps::AppInfo *app = &Apps::g_apps[m_selectedProg];
+            struct Apps::AppInfo *app = &apps->g_apps[m_selectedProg];
             bool hasName = app->name[0] != '\0';
             bool hasDescription = app->description[0] != '\0';
             bool hasAuthor = app->author[0] != '\0';
@@ -314,18 +330,18 @@ private:
 };
 
 void main() {
-    Launcher launcher;
-    if (launcher.ShowDialog() == GUIDialog::DialogResultOK) {
-        if (launcher.m_selectedProg >= Apps::g_numApps+Bins::g_numApps){
+    Launcher *launcher = new Launcher();
+    if (launcher->ShowDialog() == GUIDialog::DialogResultOK) {
+        if (launcher->m_selectedProg >= launcher->apps->g_numApps+launcher->bins->g_numApps){
 	        //Exec selected
-			Execs::EntryPoint epE = Execs::RunExec(launcher.m_selectedProg-Apps::g_numApps-Bins::g_numApps);
+			Execs::EntryPoint epE = launcher->execs->RunExec(launcher->m_selectedProg-launcher->apps->g_numApps-launcher->bins->g_numApps);
 			if (epE != nullptr) {
 				epE();
 			}
 		}
-		else if (launcher.m_selectedProg >= Apps::g_numApps){
+		else if (launcher->m_selectedProg >= launcher->apps->g_numApps){
 	        //Bin selected
-			Bins::EntryPoint epA = Bins::RunApp(launcher.m_selectedProg-Apps::g_numApps);
+			Bins::EntryPoint epA = launcher->bins->RunApp(launcher->m_selectedProg-launcher->apps->g_numApps);
 			if (epA != nullptr) {
 				epA();
 			}
@@ -333,10 +349,11 @@ void main() {
 
 		else{
 			//App selected
-			Apps::EntryPoint epA = Apps::RunApp(launcher.m_selectedProg);
+			Apps::EntryPoint epA = launcher->apps->RunApp(launcher->m_selectedProg);
 			if (epA != nullptr) {
 				epA();
 			}
 		}
     }
+    delete launcher;
 }
