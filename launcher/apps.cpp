@@ -68,7 +68,7 @@ namespace Apps {
 	};
 	const char FILE_MASK[] = "*.hhk";
 
-    struct AppInfo g_apps[MAX_APPS];
+	struct AppInfo *g_apps;
     int g_numApps;
 
     const Elf32_Ehdr *LoadELF(File f, const Elf32_Shdr **sectionHeaders) {
@@ -198,6 +198,7 @@ namespace Apps {
 
 	void LoadAppInfo() {
 		g_numApps = 0;
+		g_apps = (struct AppInfo *)Mem_Malloc(MAX_APPS * sizeof(struct AppInfo));
 
 		for (unsigned int dirNr=0; dirNr<sizeof(HHK_FOLDER)/sizeof(HHK_FOLDER[0]);dirNr++){
 			Find find;

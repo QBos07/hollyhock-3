@@ -6,7 +6,7 @@
 #include <sdk/os/lcd.hpp>
 
 namespace Execs {
-    struct ExecInfo g_execs[MAX_EXECS];
+    struct ExecInfo *g_execs;
     int g_numExecs;
 /*
 	void LoadExec(wchar_t *fileName) {
@@ -30,6 +30,7 @@ namespace Execs {
 
     void LoadExecInfo() {
 		g_numExecs = 0;
+		g_execs = (struct ExecInfo*)Mem_Malloc(64 * sizeof(struct ExecInfo));
 
 		//Check if the folder hhk exists
 		char *hhk = 0; //the address of the hhk folder

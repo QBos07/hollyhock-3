@@ -16,7 +16,7 @@ namespace Execs {
 
     const int MAX_EXECS = 64;
 
-    extern struct ExecInfo g_execs[MAX_EXECS];
+    extern struct ExecInfo *g_execs;
     extern int g_numExecs;
 
     void LoadExecInfo();

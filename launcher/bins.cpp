@@ -82,7 +82,7 @@ namespace Bins {
 	};
 	const char FILE_MASK[] = "*.bin";
 
-    struct AppInfo g_apps[MAX_APPS];
+    struct AppInfo *g_apps;
     int g_numApps;
 
 	void LoadApp(const char *folder, wchar_t *fileName) {
@@ -130,6 +130,7 @@ namespace Bins {
 
 	void LoadAppInfo() {
 		g_numApps = 0;
+		g_apps = (struct AppInfo *)Mem_Malloc(MAX_APPS * sizeof(struct AppInfo));
 
 		for (unsigned int dirNr=0; dirNr<sizeof(BIN_FOLDER)/sizeof(BIN_FOLDER[0]);dirNr++){
 			Find find;
