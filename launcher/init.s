@@ -1,5 +1,6 @@
-.section .init
-
+.section .init, "ax", @progbits
+.global _start
+_start:
 sts.l pr, @-r15
 
 ! Can't use the bsr instruction, because we get errors about the displacement not fitting in the 12-bit field.

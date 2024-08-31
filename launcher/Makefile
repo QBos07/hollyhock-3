@@ -20,13 +20,18 @@ CC_SOURCES:=$(wildcard *.c)
 CXX_SOURCES:=$(wildcard *.cpp)
 OBJECTS:=$(AS_SOURCES:.s=.o) $(CC_SOURCES:.c=.o) $(CXX_SOURCES:.cpp=.o)
 
-all: run.bin Makefile
+bin: run.bin Makefile
+elf: run.elf Makefile
+all: run.bin run.elf Makefile
 
 clean:
-	rm -f $(OBJECTS) run.bin run.bin.map
+	rm -f $(OBJECTS) run.bin run.elf run.elf.map
 
-run.bin: $(OBJECTS) $(SDK_DIR)/libsdk.a linker.ld
+run.elf: $(OBJECTS) $(SDK_DIR)/libsdk.a linker.ld
 	$(LD) -T linker.ld -Wl,-Map $@.map -o $@ $(LD_FLAGS) $(OBJECTS) -lsdk
+
+run.bin: run.elf
+	$(OBJCOPY) --output-target=binary --set-section-flags .bss=alloc,load,contents,data $< $@
 
 # We're not actually building libsdk.a, just telling the user they need to do it
 # themselves. Just using the target to trigger an error when the file is
@@ -49,4 +54,4 @@ $(SDK_DIR)/libsdk.a:
 	$(CXX) -c $< -o $@ $(CXX_FLAGS)
 	@$(READELF) $@ -S | grep ".ctors" > /dev/null && echo "ERROR: Global constructors aren't supported." && rm $@ && exit 1 || exit 0
 
-.PHONY: all clean
+.PHONY: bin elf all clean

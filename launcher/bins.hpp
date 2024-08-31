@@ -14,7 +14,7 @@ namespace Bins {
 
     const int MAX_APPS = 64;
 
-    extern struct AppInfo g_apps[MAX_APPS];
+    extern struct AppInfo *g_apps;
     extern int g_numApps;
 
     void LoadAppInfo();
