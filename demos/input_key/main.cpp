@@ -4,6 +4,9 @@
 #include <sdk/os/lcd.hpp>
 
 APP_NAME("Input_IsAnyKeyDown/Input_GetKeyState Demo")
+APP_DESCRIPTION("Displayes the keycodes of pressed buttons.")
+APP_AUTHOR("unknown")
+APP_VERSION("1.0.0")
 
 struct LUTEntry {
 	const char *str;
