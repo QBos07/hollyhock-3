@@ -14,6 +14,8 @@ on:
 jobs:
   build-sdk:
     runs-on: ubuntu-latest
+    env:
+      pushing: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository || github.event_name != 'pull_request' }}
     permissions:
       contents: read
       packages: write
@@ -47,6 +49,7 @@ jobs:
       # Login against a Docker registry
       # https://github.com/docker/login-action
       - name: Log into registry ghcr.io
+        if: env.pushing
         uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
         with:
           registry: ghcr.io
@@ -59,16 +62,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@902fa8ec7d6ecbf8d84d538b9b233a880e428804 # v5.7.0
         with:
-          images: ghcr.io/${{ github.event.pull_request.base.repo.full_name || github.repository }}
-          tags: |
-            type=schedule
-            type=ref,event=branch
-            type=ref,event=tag
-            type=raw,value=pr-${{ github.event.pull_request.number }},event=pr,enable=${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository }}
-            type=raw,value=pr-${{ github.event.pull_request.head.repo.full_name }}-${{ github.event.pull_request.number }},event=pr,enable=${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository }}
-          labels: |
-            org.opencontainers.image.source=${{ github.event_name == 'pull_request' && format('https://github.com/{0}/pull/{1}', github.event.pull_request.base.repo.full_name, github.event.pull_request.number) || format('https://github.com/{0}', github.repository) }}
-
+          images: ghcr.io/${{ github.repository }}
 
       # Build and push Docker image with Buildx
       # https://github.com/docker/build-push-action
@@ -78,7 +72,7 @@ jobs:
         with:
           context: sdk
           platforms: linux/amd64,linux/arm64
-          push: true
+          push: ${{ env.pushing }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           annotations: ${{ steps.meta.outputs.annotations }}
@@ -86,12 +80,21 @@ jobs:
           #cache-to: type=gha,mode=max
           no-cache: ${{ github.event_name == 'cron' }}
 
+      - name: Build and save local Docker image
+        id: build-and-save-local
+        uses: docker/build-push-action@1dc73863535b631f98b2378be8619f83b136f4a0 # v6.17.0
+        with:
+          context: sdk
+          tags: image
+          outputs: type=docker,dest=${{ runner.temp }}/image.tar
+
       # Sign the resulting Docker image digest.
       # This will only write to the public Rekor transparency log when the Docker
       # repository is public to avoid leaking data.  If you would like to publish
       # transparency data even for private images, pass --force to cosign below.
       # https://github.com/sigstore/cosign
       - name: Sign the published Docker image
+        if: env.pushing
         env:
           # https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-an-intermediate-environment-variable
           TAGS: ${{ steps.meta.outputs.tags }}
@@ -99,27 +102,32 @@ jobs:
         # This step uses the identity token to provision an ephemeral certificate
         # against the sigstore community Fulcio instance.
         run: echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
-        
-    outputs:
-      image: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}@${{ steps.build-and-push.outputs.digest }}
+
+      - name: Upload image
+        uses: actions/upload-artifact@v4
+        with:
+          name: image
+          path: ${{ runner.temp }}/image.tar
         
   build-artifact:
     needs: build-sdk
     runs-on: ubuntu-latest
-    container:
-      image: ${{ needs.build-sdk.outputs.image }}
-      credentials:
-       username: ${{ github.actor }}
-       password: ${{ secrets.github_token }}
-
     steps:
     - uses: actions/checkout@v4
+
+    - name: Download artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: image
+        path: ${{ runner.temp }}
+    
+    - run: docker load --input ${{ runner.temp }}/image.tar
         
     - name: build the example
-      run: make -j -C app_template
+      run: docker run --rm -v ${PWD}:/work image bash -c "make -j -C app_template"
       
     - name: build the demos
-      run: for dir in $(dirname demos/*/Makefile); do make -j -C $dir; done
+      run: docker run --rm -v ${PWD}:/work image bash -c "for dir in $(dirname demos/*/Makefile); do make -j -C $dir; done"
 
     - uses: actions/upload-artifact@v4
       with:
