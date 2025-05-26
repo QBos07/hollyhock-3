@@ -10,7 +10,7 @@ My intention was to modify it a little. I changed the following things:
              Was changed to "hollyhock" by The6P4C, I changed it to "hollyhock-2".
 - Backslash: I will change the backslash character from the symbol `¥` to the symbol `\`.
 
-# DISCLAIMER
+# DISCLAIMERhi
 - I AM NOT RESPONSIBLE FOR ANY DAMAGE YOU MAY DO TO YOUR CALCULATOR (fx-CP400, fx-CP400+E, fx-CG500 or whatever other model).  
 - I AM NOT LIABLE IF YOU BRICK OR OTHERWISE DAMAGE YOUR CALCULATOR.  
 - CASIO WILL NOT FIX YOUR CALCULATOR IF IT SHOWS EVIDENCE OF TAMPERING, I.E. FLASHING WITH MODIFIED FIRMWARE IMAGES OR MESSING WITH DEBUG MENUS.  
