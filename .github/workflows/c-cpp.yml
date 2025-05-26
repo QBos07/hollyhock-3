@@ -128,7 +128,7 @@ jobs:
       run: docker run --rm -v ${PWD}:/work image bash -c "make -j -C app_template"
       
     - name: build the demos
-      run: docker run --rm -v ${PWD}:/work image bash -c "for dir in $(dirname demos/*/Makefile); do make -j -C $dir; done"
+      run: docker run --rm -v ${PWD}:/work image bash -c "for dir in \$(dirname demos/\*/Makefile); do make -j -C \$dir; done"
 
     - uses: actions/upload-artifact@v4
       with:
