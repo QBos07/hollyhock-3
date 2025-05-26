@@ -64,10 +64,10 @@ jobs:
             type=schedule
             type=ref,event=branch
             type=ref,event=tag
-            type=raw,value=pr-${{ github.event.pull_request.number }},event=pr \
-              enable={{ github.event.pull_request.head.repo.full_name == github.repository }}
-            type=raw,value=pr-${{ github.event.pull_request.head.repo.full_name }}-${{ github.event.pull_request.number }},event=pr \
-              enable={{ github.event.pull_request.head.repo.full_name != github.repository }}
+            type=raw,value=pr-${{ github.event.pull_request.number }},event=pr, \
+              enable=${{ github.event.pull_request.head.repo.full_name == github.repository }}
+            type=raw,value=pr-${{ github.event.pull_request.head.repo.full_name }}-${{ github.event.pull_request.number }},event=pr, \
+              enable=${{ github.event.pull_request.head.repo.full_name != github.repository }}
           labels: |
             org.opencontainers.image.source=${{ github.event_name == 'pull_request' && format('https://github.com/{0}/pull/{1}', github.event.pull_request.base.repo.full_name, github.event.pull_request.number) || format('https://github.com/{0}', github.repository) }}
 
