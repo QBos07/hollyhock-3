@@ -3,11 +3,11 @@ If you want to install gcc for sh4, look [here](https://github.com/TheRainbowPho
 ---
 
 # Patching the fx-CP400 firmware
-**You do not need to do this by hand if you just want to install programs on ypur calculator! Just use the program Snail2021.exe which is available in the releases.**
+**You do not need to do this by hand if you just want to install programs on your calculator! Just use the program Snail2021.exe which is available in the releases.**
 
 Simple instructions if you just want to install it: https://github.com/SnailMath/hollyhock-2#installation-simple 
 
-If you don't want to youse the precompiled program and you want to compile it by hand, 
+If you don't want to use the precompiled program and you want to compile it by hand, 
 you need both a Windows and Linux machine to complete this process (as there is no updater for Linux, and the extraction tool extracts the firmware from the Windows DLLs). I'd recommend a virtual machine (or Vagrant box for simplicity) rather than two physical machines.
 
 You'll also need a resource editor program - [Resource Hacker](http://www.angusj.com/resourcehacker/) has been tested to work ~~(Visual Studio can also be used to replace the RCDATA resource - just be careful to give the replaced resource an ID of 3070!).~~ (Snail2021 relies on 'Resource Hacker')
